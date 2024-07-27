@@ -13,20 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2  # 检出代码
 
-      - name: Install sshpass
+      - name: Install and deploy
+        env:
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}  # 从 GitHub Secrets 获取密码
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}    # 从 GitHub Secrets 获取用户名
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}    # 从 GitHub Secrets 获取服务器地址
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}    # 从 GitHub Secrets 获取远程路径
         run: |
           sudo apt-get update -y
           sudo apt-get install -y sshpass
-
-      - name: Verify sshpass installation
-        run: sshpass -V  # 验证 sshpass 是否安装成功
-
-      - name: Deploy to Server
-        env:
-          PASSWORD: ${{ secrets.PASSWORD }}  # 从 GitHub Secrets 获取密码
-          USERNAME: ${{ secrets.USERNAME }}    # 从 GitHub Secrets 获取用户名
-          HOST: ${{ secrets.HOST }}    # 从 GitHub Secrets 获取服务器地址
-          PATH: ${{ secrets.PATH }}    # 从 GitHub Secrets 获取远程路径
-        run: |
-          sshpass -p $PASSWORD ssh -o StrictHostKeyChecking=no $USERNAME@$HOST "mkdir -p $PATH"
-          sshpass -p $PASSWORD rsync -avz --delete dist/ $USERNAME@$HOST:$PATH
+          sshpass -p $SSH_PASSWORD ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_PATH"
+          sshpass -p $SSH_PASSWORD rsync -avz --delete dist/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
