@@ -18,6 +18,9 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y sshpass
 
+      - name: Verify sshpass installation
+        run: sshpass -V  # 验证 sshpass 是否安装成功
+
       - name: Deploy to Server
         env:
           PASSWORD: ${{ secrets.PASSWORD }}  # 从 GitHub Secrets 获取密码
@@ -25,5 +28,5 @@ jobs:
           HOST: ${{ secrets.HOST }}    # 从 GitHub Secrets 获取服务器地址
           PATH: ${{ secrets.PATH }}    # 从 GitHub Secrets 获取远程路径
         run: |
-          sshpass -p $PASSWORD ssh -o StrictHostKeyChecking=no $USER@$HOST "mkdir -p $PATH"
-          sshpass -p $PASSWORD rsync -avz --delete dist/ $USER@$HOST:$PATH
+          sshpass -p $PASSWORD ssh -o StrictHostKeyChecking=no $USERNAME@$HOST "mkdir -p $PATH"
+          sshpass -p $PASSWORD rsync -avz --delete dist/ $USERNAME@$HOST:$PATH
